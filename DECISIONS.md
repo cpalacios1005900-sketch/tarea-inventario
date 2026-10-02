@@ -37,20 +37,3 @@ Solo `Inventory.create(...)` es público (más el contrato `api`, intacto). El r
 ## Pruebas
 
 Solo los 3 tests originales (`InventoryServiceTest`), que cubren el flujo principal. No hay tests automáticos de expiración, idempotencia, límites por categoría, alertas ni concurrencia.
-
-## Lo que dejé fuera
-
-- Persistencia y varias instancias (todo vive en memoria de un proceso).
-- Cancelar una reserva (por ejemplo, pago rechazado).
-- Reintentos de alertas si el canal falla.
-- Limpieza de pedidos confirmados y productos en memoria.
-- Métricas y trazas.
-
-## Qué cambiaría antes de producción
-
-1. **Base de datos como fuente de verdad:** `UPDATE` condicional atómico para reservar e `INSERT` con `order_id` único para la idempotencia; el lock en memoria no sirve con varias instancias.
-2. **Tests automáticos** de expiración, idempotencia, categorías, alertas y concurrencia.
-3. **Hora de la base de datos** para los vencimientos, evitando desfases entre instancias.
-4. **Alertas** con outbox transaccional, aviso atómico y reintentos por canal.
-5. **Operación `cancel/release`** para devolver stock al instante.
-6. **Observabilidad:** métricas y logs con `orderId`.
